@@ -132,3 +132,16 @@ func TestBearerPolicy_UsernamePasswordCredential(t *testing.T) {
 		t.Fatalf("Expected an empty error but receive: %v", err)
 	}
 }
+
+func TestUsernamePasswordCredential_Int_GetTokenSuccess(t *testing.T) {
+	vl := integrationTestEnvVarGuard(t, "AZURE_CLIENT_ID", "AZURE_TENANT_ID", "AZURE_USERNAME", "AZURE_PASSWORD")
+	clientID, tenantID, username, password := vl[0], vl[1], vl[2], vl[3]
+	cred, err := NewUsernamePasswordCredential(tenantID, clientID, username, password, nil)
+	if err != nil {
+		t.Fatalf("Unable to create credential. Received: %v", err)
+	}
+	_, err = cred.GetToken(context.Background(), azcore.TokenRequestOptions{Scopes: []string{scope}})
+	if err != nil {
+		t.Fatalf("Expected an empty error but received: %s", err.Error())
+	}
+}

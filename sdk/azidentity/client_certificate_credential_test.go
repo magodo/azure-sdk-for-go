@@ -302,3 +302,16 @@ func TestBearerPolicy_ClientCertificateCredential(t *testing.T) {
 		t.Fatalf("Expected nil error but received one")
 	}
 }
+
+func TestClientCertificateCredential_Int_GetTokenSuccess(t *testing.T) {
+	vl := integrationTestEnvVarGuard(t, "AZURE_TENANT_ID", "AZURE_CLIENT_ID", "AZURE_CLIENT_CERTIFICATE_PATH")
+	tenantID, clientID, certPath := vl[0], vl[1], vl[2]
+	cred, err := NewClientCertificateCredential(tenantID, clientID, certPath, nil)
+	if err != nil {
+		t.Fatalf("Expected an empty error but received: %s", err.Error())
+	}
+	_, err = cred.GetToken(context.Background(), azcore.TokenRequestOptions{Scopes: []string{scope}})
+	if err != nil {
+		t.Fatalf("Expected an empty error but received: %s", err.Error())
+	}
+}

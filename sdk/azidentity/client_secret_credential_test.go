@@ -159,3 +159,16 @@ func TestClientSecretCredential_GetTokenUnexpectedJSON(t *testing.T) {
 		t.Fatalf("Expected a JSON marshal error but received nil")
 	}
 }
+
+func TestClientSecretCredential_Int_GetTokenSuccess(t *testing.T) {
+	vl := integrationTestEnvVarGuard(t, "AZURE_TENANT_ID", "AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET")
+	tenantID, clientID, clientSecret := vl[0], vl[1], vl[2]
+	cred, err := NewClientSecretCredential(tenantID, clientID, clientSecret, nil)
+	if err != nil {
+		t.Fatalf("Unable to create credential. Received: %v", err)
+	}
+	_, err = cred.GetToken(context.Background(), azcore.TokenRequestOptions{Scopes: []string{scope}})
+	if err != nil {
+		t.Fatalf("Expected an empty error but received: %v", err)
+	}
+}

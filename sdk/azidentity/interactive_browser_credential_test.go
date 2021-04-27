@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
@@ -170,5 +171,26 @@ func TestInteractiveBrowserCredential_GetTokenInvalidCredentials(t *testing.T) {
 	}
 	if respError.Response == nil {
 		t.Fatalf("Did not receive an error response")
+	}
+}
+
+func TestInteractiveBrowserCredential_Int_GetTokenSuccess_LocalServer(t *testing.T) {
+	vl := integrationTestEnvVarGuard(t, "AZURE_CLIENT_ID", "AZURE_AUTH_CODE_REDIRECT_PORT", "AZURE_GO_SDK_INT_TEST_INTERACTIVE")
+	clientID, portStr := vl[0], vl[1]
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	options := InteractiveBrowserCredentialOptions{
+		ClientID: clientID,
+		Port:     port,
+	}
+	cred, err := NewInteractiveBrowserCredential(&options)
+	if err != nil {
+		t.Fatalf("Unable to create credential. Received: %v", err)
+	}
+	_, err = cred.GetToken(context.Background(), azcore.TokenRequestOptions{Scopes: []string{"offline_access", "openid"}})
+	if err != nil {
+		t.Fatalf("Expected an empty error but received: %v", err)
 	}
 }

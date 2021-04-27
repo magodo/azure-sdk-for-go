@@ -327,3 +327,20 @@ func TestBearerPolicy_DeviceCodeCredential(t *testing.T) {
 		t.Fatalf("Expected an empty error but receive: %v", err)
 	}
 }
+
+func TestDeviceCodeCredential_Int_GetTokenSuccess(t *testing.T) {
+	vl := integrationTestEnvVarGuard(t, "AZURE_TENANT_ID", "AZURE_CLIENT_ID", "AZURE_GO_SDK_INT_TEST_INTERACTIVE")
+	tenantID, clientID := vl[0], vl[1]
+	options := DeviceCodeCredentialOptions{
+		ClientID: clientID,
+		TenantID: tenantID,
+	}
+	cred, err := NewDeviceCodeCredential(&options)
+	if err != nil {
+		t.Fatalf("Unable to create credential. Received: %v", err)
+	}
+	_, err = cred.GetToken(context.Background(), azcore.TokenRequestOptions{Scopes: []string{deviceCodeScopes}})
+	if err != nil {
+		t.Fatalf("Expected an empty error but received: %s", err.Error())
+	}
+}
